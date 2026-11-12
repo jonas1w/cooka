@@ -34,7 +34,7 @@ One physical container (box, bag) in stock, identified by its freezer label. Kee
 _Avoid_: Item, box, entry
 
 **Consume**:
-Taking a stock unit out to eat it — done by scanning its label. Always the whole unit.
+Taking a stock unit out to eat it — done by scanning its label with the scanner, typing its label number there, or tapping Take out on its unit page. Always the whole unit.
 _Avoid_: Use, check out
 
 **Opened**:
@@ -83,3 +83,15 @@ _Avoid_: Nutrition per portion, macros per 100 g
 **Merge**:
 Folding a duplicate Food (usually a typo) into another. Its stock units then belong to the surviving Food; what they printed is unchanged. A Food with stock units can only be merged, never deleted.
 _Avoid_: Combine, dedupe
+
+**Unit page**:
+The page a freezer label's QR code opens in any camera app. Shows the stock unit and offers Take out; opening it never changes anything.
+_Avoid_: Consume page, label page
+
+**Scanner**:
+cooka's own camera-and-keypad screen for taking units out. Unlike the unit page, a scan or a typed label number here consumes immediately (with Undo), except for units past use-by.
+_Avoid_: Take-out mode, consume mode
+
+**Base URL**:
+The address printed into every freezer label's QR code. Labels keep the base URL they were printed with; the instance remembers every base URL it has printed with and recognises labels from all of them.
+_Avoid_: Short host, domain
