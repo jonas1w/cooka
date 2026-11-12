@@ -27,7 +27,18 @@ A named thing that gets frozen repeatedly — a cooked dish or a raw good — ca
 _Avoid_: Item, template, Vorlage, product
 
 **Recipe**:
-Instructions with ingredients and servings, imported or written. A Food may link to the Recipe it is cooked from; raw goods have none.
+Instructions with ingredients and servings, imported or written. A Food may link to the Recipe it is cooked from — at most one, the one it was last cooked from; raw goods have none.
+
+**Servings**:
+How many people a Recipe feeds — what cooking mode scales. Distinct from a stock unit's portion text, which is derived from the servings frozen into it.
+_Avoid_: Portions (for the recipe's yield), yield
+
+**Cooking mode**:
+The view for cooking a Recipe: the whole recipe on one page, the current step highlighted with its ingredients beneath it, timers and the screen kept awake. Ends in "Freeze portions", which labels the cooked dish.
+_Avoid_: Cook view, step mode
+
+**Default shelf life**:
+The freezer shelf life a newly created Food starts with, set per instance. After that, each Food remembers its own.
 
 **Stock unit**:
 One physical container (box, bag) in stock, identified by its freezer label. Keeps its own copy of everything printed on the label; editing its Food never changes it. Belongs to one Food.
