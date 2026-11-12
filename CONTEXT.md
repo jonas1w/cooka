@@ -30,8 +30,22 @@ _Avoid_: Item, template, Vorlage, product
 Instructions with ingredients and servings, imported or written. A Food may link to the Recipe it is cooked from — at most one, the one it was last cooked from; raw goods have none.
 
 **Servings**:
-How many people a Recipe feeds — what cooking mode scales. Distinct from a stock unit's portion text, which is derived from the servings frozen into it.
+How many portions or pieces a Recipe makes — what cooking mode scales and what its macros are given per. 18 cookies are 18 servings. Distinct from a stock unit's portion text, which is derived from the servings frozen into it.
 _Avoid_: Portions (for the recipe's yield), yield
+
+**Recipe import**:
+Turning a web page, a social-media post or pasted text into a Recipe, through one fixed chain: structured recipe data on the page, then the AI fallback, then a plain text split, then a stub with only title, image and source. Imports are snapshots — the Recipe is the household's own copy from then on, never re-synced.
+_Avoid_: Scrape, sync
+
+**Source URL**:
+The address a Recipe was imported from, kept on the Recipe. Importing a source URL that is already in cooka offers to open the existing Recipe or import a copy.
+
+**AI fallback**:
+An optional, per-instance language model (OpenAI, Anthropic or Gemini) that structures an import only when the page has no structured recipe data. It fills a fixed format, leaves anything the source does not state empty — never estimates macros — and keeps the source's wording.
+_Avoid_: AI import, smart import
+
+**Import hint**:
+A dismissable note on a freshly imported Recipe pointing at what to check — nutrition not imported, structured by AI, no ingredients found. Imports save immediately; hints replace a review step.
 
 **Cooking mode**:
 The view for cooking a Recipe: the whole recipe on one page, the current step highlighted with its ingredients beneath it, timers and the screen kept awake. Ends in "Freeze portions", which labels the cooked dish.

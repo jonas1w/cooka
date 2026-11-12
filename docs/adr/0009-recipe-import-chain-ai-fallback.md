@@ -1,0 +1,11 @@
+# Recipe import is a fixed fallback chain; AI only where structured data is missing
+
+Every recipe import — a web URL, an Instagram or YouTube Shorts post, or pasted text/HTML — runs one chain: schema.org Recipe JSON-LD (a small hand-rolled Go extractor) → the optional AI fallback, if configured → a heuristic text split → an OpenGraph stub (title, image, source URL). The AI fallback (OpenAI, Anthropic or Gemini, per instance, off by default) runs only when JSON-LD yields nothing, fills a fixed structured-output schema, never invents values — macros the source does not state stay empty — and keeps the source's wording. All paths then go through the same deterministic Go cleanup (whitespace, unicode fractions to ASCII, entities, emoji, hashtags; one ingredient per line), so every Recipe looks the same however it arrived. Ingredients stay free text. The server fetches once with a plain client and honest User-Agent; when that fails the user brings the content: a "paste anything" field, a PWA share target (Android) and a bookmarklet (desktop).
+
+We rejected a Python recipe-scrapers sidecar (642 site overrides) because it breaks the single Go binary and adds a runtime and IPC for little gain — JSON-LD covered every fetchable site we sampled. We rejected porting per-site overrides because they rot with every site redesign; a broken import is fixed by editing the Recipe. We rejected running the AI on every import (to restyle or clean JSON-LD results) because it would make the common case cost money, send data out, and risk silently changing amounts. We rejected TLS-fingerprint impersonation and FlareSolverr because they are an arms race and FlareSolverr is a second container; the user's own browser is the reliable fetcher.
+
+## Consequences
+
+- Nutrition is accepted only when it is per serving (`servingSize` empty, "1 serving/Portion", or "1 <yield noun>"); otherwise it is dropped with an import hint. Servings is the yield's count whatever its noun; ranges take the lower bound; bare numbers mean kcal and grams; kJ is converted.
+- Imports save immediately and are snapshots: one downscaled image is stored in `/data`, the source URL is kept for duplicate detection, and nothing re-syncs from the source.
+- With the AI fallback configured, page or caption text leaves the LAN for the chosen provider — only on imports without structured data.
