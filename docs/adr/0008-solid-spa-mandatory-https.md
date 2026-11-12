@@ -1,0 +1,10 @@
+# Solid SPA embedded in the binary; HTTPS is mandatory
+
+cooka's frontend is a client-side SPA — Solid, TypeScript, Vite, `@solidjs/router` — whose static build is embedded in the Go binary; data flows through TanStack Query, with event-stream topics invalidating queries, an IndexedDB persister for offline reads, and paused, persisted mutations as the shopping list's offline queue. Only the shopping list queues writes offline; every other write needs a connection. cooka is served over HTTPS only: the plain-HTTP listener does nothing but redirect to the configured HTTPS base URL, and until HTTPS is configured cooka shows a single "HTTPS required" page. Freezer labels therefore print `HTTPS://` in their QR code (amending ADR 0004).
+
+We rejected server-rendered pages (Go templates + htmx) because the offline shopping list and reload-proof cooking mode need real client state — an offline client would have been a second app. We rejected SolidStart, named in the idea note, because it needs a Node server beside the single Go binary. We rejected a supported plain-HTTP mode because service workers, camera access and wake lock all require a secure context: over HTTP cooka would lose its offline shopping list, in-app scanner and awake cooking screen, and every screen would need a degraded variant. A self-signed certificate does not count — browsers refuse service workers on certificate errors — so a trusted certificate is a first-run requirement. We rejected Web Push for background timer alarms because it routes through browser vendors' push servers on the internet; timers ring in the foreground only.
+
+## Consequences
+
+- Supported browsers are a rolling window: desktop browsers released in the last 6 months, iOS and Android versions from the last year. No legacy polyfills; `barcode-detector` (zxing-wasm, self-hosted) covers browsers without a native barcode API.
+- A cached frontend outlives server upgrades: updates are offered ("Update ready"), never forced mid-task, except when the server answers `409 client_outdated`. Shopping-list entry write shapes stay compatible within a major version so queued offline writes survive an upgrade.

@@ -104,7 +104,7 @@ cooka's own camera-and-keypad screen for taking units out. Unlike the unit page,
 _Avoid_: Take-out mode, consume mode
 
 **Base URL**:
-The address printed into every freezer label's QR code. Labels keep the base URL they were printed with; the instance remembers every base URL it has printed with and recognises labels from all of them.
+The HTTPS address printed into every freezer label's QR code and the only address cooka is used at. Labels keep the base URL they were printed with; the instance remembers every base URL it has printed with and recognises labels from all of them.
 _Avoid_: Short host, domain
 
 **Label preset**:
