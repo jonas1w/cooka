@@ -134,3 +134,7 @@ _Avoid_: Item, product, shopping item
 **Restock**:
 A per-Food setting (off by default): when the Food's last in-stock unit is consumed, an entry named after the Food is added to the shopping list — for a cooked dish, a reminder to cook it again. Restoring the unit removes the entry again while it is still open.
 _Avoid_: Auto-reorder, low-stock alert
+
+**Event stream**:
+The one server-sent stream every open screen listens to. It only says *which* topic changed (e.g. the shopping list); the screen then reloads that data itself. Changes from other phones arrive through it within seconds.
+_Avoid_: Push, sync, websocket
