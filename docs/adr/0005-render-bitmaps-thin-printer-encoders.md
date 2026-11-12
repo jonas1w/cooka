@@ -1,0 +1,5 @@
+# Labels are rendered as bitmaps; printer drivers only encode them
+
+cooka renders every freezer label itself — one Go renderer, a bundled font and QR library — into a 1-bit image at the target printer's resolution and label preset. A printer driver is a thin encoder for that image (ZPL: Z64-compressed `^GF`). v1 ships only the ZPL driver over raw TCP; a Brother QL raster encoder proves the seam but is not supported. All units labelled together go to the printer in one connection, so printing stays as fast as a native template.
+
+We rejected per-printer native templates (the idea note's ZPL `CleanLayout` using `^A0`, `^BQ`, `^FB`) because raster-only printers like Brother QL could never share the seam, previews would need a ZPL emulator, non-Latin text depends on printer-resident fonts, and ZPL clones implement an unverified subset of commands. The cost — a few KB per label and doing text fitting ourselves — is accepted. `CleanLayout` survives only as the visual design of the 60×40 preset.

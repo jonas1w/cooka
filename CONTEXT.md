@@ -95,3 +95,19 @@ _Avoid_: Take-out mode, consume mode
 **Base URL**:
 The address printed into every freezer label's QR code. Labels keep the base URL they were printed with; the instance remembers every base URL it has printed with and recognises labels from all of them.
 _Avoid_: Short host, domain
+
+**Label preset**:
+A hand-designed label layout for one label size (60×40 mm, 57×32 mm, 2"×2"), deciding which label fields fit. One per instance; there are no free-form sizes.
+_Avoid_: Template, label format
+
+**Reprint**:
+Printing a new physical label for a stock unit that is still in stock — same label number, its current details, the current base URL and label preset. Never creates a new unit; recorded in the stock history.
+_Avoid_: Duplicate, copy, relabel
+
+**Bound printer**:
+The one label printer an instance prints to, identified by its serial number rather than its address. If its address changes, cooka finds it again; if a different printer answers there, cooka says so instead of printing to it.
+_Avoid_: Default printer, printer IP
+
+**No-printer mode**:
+How an instance works while no printer is bound: labelling still creates stock units and shows their label numbers large, to be written on by hand; taking out works by typing the number.
+_Avoid_: Offline mode, manual mode
