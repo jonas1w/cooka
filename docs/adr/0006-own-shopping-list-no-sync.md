@@ -1,0 +1,5 @@
+# cooka's shopping list is the primary list, with no sync in v1
+
+People shop from cooka's own shopping list. Its entries are free text, optionally linked to the Food (restock) or Recipe (recipe add) that created them, and are never parsed into amounts or units. v1 pushes to no external list: the only outward paths are sharing the open entries as plain text through the phone's share sheet and one documented, unauthenticated endpoint that adds an entry by text (for Shortcuts, Home Assistant automations and the like).
+
+We rejected making cooka a staging area that syncs to Bring!, Todoist or Home Assistant's to-do entity, and two-way sync in particular, because conflict handling and matching external items back to Foods is the heavy plumbing cooka is meant to avoid — and the app must work for people without any of those tools. Home Assistant's to-do entity remains the obvious single integration target if a push is added later. We rejected structured entries because they need ingredient parsing, which v1 leaves out.

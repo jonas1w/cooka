@@ -122,3 +122,15 @@ _Avoid_: Default printer, printer IP
 **No-printer mode**:
 How an instance works while no printer is bound: labelling still creates stock units and shows their label numbers large, to be written on by hand; taking out works by typing the number.
 _Avoid_: Offline mode, manual mode
+
+**Shopping list**:
+The one list per instance that people shop from — cooka's own, not a staging area for another app. Buying something never creates stock; stock only comes from labelling.
+_Avoid_: Grocery list, Einkaufszettel, cart
+
+**Shopping list entry**:
+One free-text line on the shopping list, optionally linked to the Food or Recipe that put it there. No amounts, units or categories — "2 onions" is just text.
+_Avoid_: Item, product, shopping item
+
+**Restock**:
+A per-Food setting (off by default): when the Food's last in-stock unit is consumed, an entry named after the Food is added to the shopping list — for a cooked dish, a reminder to cook it again. Restoring the unit removes the entry again while it is still open.
+_Avoid_: Auto-reorder, low-stock alert
