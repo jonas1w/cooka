@@ -49,7 +49,7 @@ export default function LauncherShell(p: ParentProps<{ nav: Nav }>) {
       <Show when={p.nav === "modes"}>
         <nav class={s.modes}>
           <For each={MODES}>{(j) => (
-            <button class={s.mode} classList={{ [s.modeOn]: modeOn(j, loc.pathname) }} onClick={() => go(j.path === "/" && cooking() ? `/cook/${cooking()}` : j.path)}>
+            <button class={s.mode} classList={{ [s.modeOn]: modeOn(j, loc.pathname) }} onClick={() => go(j.path === "/" && cooking() && !loc.pathname.startsWith("/cook") ? `/cook/${cooking()}` : j.path)}>
               <span class={s.tabIcon}>{j.icon}</span>{j.label}
             </button>
           )}</For>

@@ -6,8 +6,11 @@ import s from "./screens.module.css";
 
 export default function List() {
   const [text, setText] = createSignal("");
-  const open = () => db.list.filter((e) => !e.done);
-  const done = () => db.list.filter((e) => e.done);
+  // Round 5: the add box doubles as search — typing filters, so duplicates show before you add them.
+  const match = (e: { text: string }) => !text().trim() || e.text.toLowerCase().includes(text().trim().toLowerCase());
+  const open = () => db.list.filter((e) => !e.done && match(e));
+  const done = () => db.list.filter((e) => e.done && match(e));
+  const exact = () => db.list.find((e) => !e.done && e.text.toLowerCase() === text().trim().toLowerCase());
   const add = () => {
     if (!text().trim()) return;
     setDb("list", (l) => [{ id: crypto.randomUUID(), text: text().trim(), done: false, queued: !online() }, ...l]);
@@ -28,9 +31,15 @@ export default function List() {
       <div class={s.listWrap}>
         <h1 class={s.h1}>Shopping list</h1>
         <form class={s.addRow} onSubmit={(e) => { e.preventDefault(); add(); }}>
-          <input class={s.input} value={text()} onInput={(e) => setText(e.currentTarget.value)} placeholder="Add…" />
-          <Btn kind="primary" onClick={add}>Add</Btn>
+          <input class={s.input} value={text()} onInput={(e) => setText(e.currentTarget.value)} placeholder="Add or search…" />
+          <Btn kind="primary" disabled={!!exact()} onClick={add}>{exact() ? "On list" : "Add"}</Btn>
         </form>
+        <Show when={text().trim()}>
+          <div class={s.muted} style={{ "font-size": "var(--fs-s)" }}>
+            {open().length + done().length ? `${open().length + done().length} matching` : "Not on the list yet — Add puts it on"}
+            {" · "}<button style={{ background: "none", border: 0, "text-decoration": "underline", cursor: "pointer", color: "inherit", "font-size": "inherit" }} onClick={() => setText("")}>clear</button>
+          </div>
+        </Show>
         <For each={open()}>{Entry}</For>
         <Show when={done().length}>
           <div class={s.muted} style={{ "margin-top": "var(--gap)" }}>In the basket ({done().length})</div>

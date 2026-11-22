@@ -31,7 +31,8 @@ export default function Cook() {
     <div class={s.cookWrap}>
     <div class={s.cook} onClick={() => setCookStep((i) => Math.min(last, i + 1))}>
       <div class={s.cookHead}>
-        <h1 class={s.h1}>{recipe.title}</h1>
+        <Btn kind="ghost" onClick={() => go("/recipes")}>◀ Recipes</Btn>
+        <h1 class={s.h1} style={{ width: "100%" }}>{recipe.title}</h1>
         <Stepper value={servings()} max={40} label="servings" onChange={setCookServings} />
         <div class={s.row2} style={{ width: "100%" }}>
           <Btn onClick={() => setSheet("scan")}>⌖ Take out</Btn>
