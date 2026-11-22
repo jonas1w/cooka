@@ -98,3 +98,23 @@
 .quick { display: flex; flex-wrap: wrap; gap: 8px; }
 .quick button { min-height: var(--tap); padding: 0 var(--pad); border-radius: 999px; border: 2px solid var(--line); background: var(--surface); font-size: var(--fs); cursor: pointer; }
 .quickOn { background: var(--accent) !important; color: var(--accent-ink); border-color: var(--accent) !important; opacity: .7; }
+
+/* Round 6 — scanner pop-ups instead of a status row */
+.scanner { position: relative; grid-template-rows: minmax(140px, 1fr) auto auto; }
+.undoLine { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 40px; font-size: var(--fs-s); font-weight: 700; white-space: nowrap; overflow: hidden; }
+.undoLine > span { overflow: hidden; text-overflow: ellipsis; }
+.undoBtn { flex: none; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 2px solid var(--line); background: var(--surface); font-weight: 800; cursor: pointer; }
+.pop { position: absolute; inset: 0; z-index: 10; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: calc(var(--pad) * 1.5); text-align: center; animation: popIn .18s ease-out; }
+@keyframes popIn { from { opacity: 0; transform: scale(.96); } }
+.popOk { background: var(--accent); color: var(--accent-ink); }
+.popWarn { background: var(--warn-bg); }
+.popBad { background: var(--danger-bg); }
+.popTitle { font-size: var(--fs-xl); font-weight: 900; }
+.popFood { font-size: var(--fs-l); font-weight: 700; }
+.popSub { font-size: var(--fs); opacity: .85; max-width: 28ch; }
+.popIcon { font-size: 72px; line-height: 1; }
+.popActions { display: grid; gap: 10px; width: 100%; max-width: 360px; margin-top: var(--gap); }
+.check { width: 120px; height: 120px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.check circle { stroke-dasharray: 151; stroke-dashoffset: 151; animation: draw .45s ease-out forwards; }
+.check path { stroke-width: 4; stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw .3s .4s ease-out forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }

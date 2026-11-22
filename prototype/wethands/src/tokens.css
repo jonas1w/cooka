@@ -21,3 +21,8 @@ button { font: inherit; color: inherit; }
   --bg: #121417; --surface: #1e2227; --ink: #f2f1ee; --muted: #a3a8ae; --line: #2f353c;
   --accent: #ffd23f; --accent-ink: #121417; --warn: #ffb057; --danger: #ff7b72; --warn-bg: #3a2a12; --danger-bg: #3d1c1a;
 }
+/* Round 6: F a notch smaller than B, same warm palette. Comes after B so it wins. */
+[data-variant="F"] {
+  --tap: 64px; --tap-primary: 76px; --fs: 18px; --fs-s: 15px; --fs-l: 23px; --fs-xl: 30px; --fs-num: 46px;
+  --gap: 14px; --pad: 16px; --radius: 16px;
+}

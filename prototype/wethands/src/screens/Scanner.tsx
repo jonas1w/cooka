@@ -1,29 +1,45 @@
-// Scanner: camera + numpad. A scan or 4 typed digits consumes immediately; Undo stays until the next scan.
-import { createSignal, For, Match, Show, Switch } from "solid-js";
-import { db, inStock, online, pastUseBy, setLastTaken, lastTaken, setUnitState, type Unit } from "../data";
+// Scanner: camera + numpad. A scan or 4 typed digits consumes immediately.
+// Round 6: no status row — results are full-screen pop-ups. "Taken out" closes itself and leaves a one-line
+// sticky Undo; past best-before asks Use it / Discard; past use-by offers only Discard / Put back (never eaten).
+import { createSignal, For, Match, onCleanup, Show, Switch } from "solid-js";
+import { db, fmtDate, inStock, online, pastBestBefore, pastUseBy, setLastTaken, lastTaken, setUnitState, type Unit } from "../data";
 import { Btn } from "../ui";
-import { useGo } from "../nav";
 import s from "./screens.module.css";
 
-type Result = { kind: "taken"; unit: Unit } | { kind: "useby"; unit: Unit } | { kind: "none"; typed: string } | { kind: "pick"; units: Unit[] } | { kind: "undone"; unit: Unit };
+type Pop =
+  | { kind: "taken"; unit: Unit }
+  | { kind: "bestbefore"; unit: Unit }
+  | { kind: "useby"; unit: Unit }
+  | { kind: "discarded"; unit: Unit }
+  | { kind: "none"; typed: string }
+  | { kind: "pick"; units: Unit[] };
 
 export default function Scanner(props: { embedded?: boolean; onTaken?: (u: Unit) => void; onUndo?: (u: Unit) => void }) {
-  const go = useGo();
   const [typed, setTyped] = createSignal("");
-  const [result, setResult] = createSignal<Result | null>(
-    !props.embedded && lastTaken() ? { kind: "taken", unit: db.units.find((u) => u.no === lastTaken())! } : null,
+  const [pop, setPop] = createSignal<Pop | null>(null);
+  const [undoable, setUndoable] = createSignal<Unit | null>(
+    !props.embedded && lastTaken() ? db.units.find((u) => u.no === lastTaken()) ?? null : null,
   );
+  let timer: number | undefined;
+  const flash = (p: Pop, ms = 1800) => { clearTimeout(timer); setPop(p); timer = window.setTimeout(() => setPop(null), ms); };
+  onCleanup(() => clearTimeout(timer));
 
-  const take = (u: Unit) => {
-    if (pastUseBy(u)) return setResult({ kind: "useby", unit: u });
-    setUnitState(u.no, "consumed"); setLastTaken(u.no);
-    setResult({ kind: "taken", unit: { ...u } });
+  const consume = (u: Unit) => {
+    setUnitState(u.no, "consumed"); setLastTaken(u.no); setUndoable({ ...u });
     props.onTaken?.(u);
+    flash({ kind: "taken", unit: { ...u } });
   };
+  const take = (u: Unit) => {
+    setUndoable(null); // a new scan ends the previous Undo
+    if (pastUseBy(u)) return setPop({ kind: "useby", unit: u });
+    if (pastBestBefore(u)) return setPop({ kind: "bestbefore", unit: u });
+    consume(u);
+  };
+  const discard = (u: Unit) => { setUnitState(u.no, "discarded"); flash({ kind: "discarded", unit: u }, 1400); };
   const lookup = (digits: string) => {
     const hits = inStock().filter((u) => u.no.slice(-4) === digits);
-    if (hits.length === 0) return setResult({ kind: "none", typed: digits });
-    if (hits.length > 1) return setResult({ kind: "pick", units: hits });
+    if (hits.length === 0) return flash({ kind: "none", typed: digits }, 2200);
+    if (hits.length > 1) return setPop({ kind: "pick", units: hits });
     take(hits[0]);
   };
   const press = (k: string) => {
@@ -32,7 +48,8 @@ export default function Scanner(props: { embedded?: boolean; onTaken?: (u: Unit)
     setTyped(next);
     if (next.length === 4) { lookup(next); setTimeout(() => setTyped(""), 250); } // auto-submit
   };
-  const undo = (u: Unit) => { setUnitState(u.no, "in"); setLastTaken(null); setResult({ kind: "undone", unit: u }); props.onUndo?.(u); };
+  const undo = () => { const u = undoable()!; setUnitState(u.no, "in"); setLastTaken(null); setUndoable(null); props.onUndo?.(u); };
+  const sim = () => (props.embedded ? ["0409", "0402", "0405", "0407"] : ["0412", "0402", "0405", "0407"]);
 
   return (
     <div class={s.scanner} classList={{ [s.embedded]: props.embedded }}>
@@ -40,39 +57,22 @@ export default function Scanner(props: { embedded?: boolean; onTaken?: (u: Unit)
         <div class={s.reticle} />
         <div class={s.simulate}>
           <span style={{ color: "#ff3ea5", "font-size": "12px", width: "100%", "text-align": "center" }}>simulate a QR scan:</span>
-          <For each={props.embedded ? ["0409", "0402", "0405"] : ["0412", "0399", "0405", "0408"]}>{(no) => (
-            <button onClick={() => { const u = db.units.find((x) => x.no === no)!; u.state === "in" ? take(u) : setResult({ kind: "none", typed: no }); }}>{no}</button>
+          <For each={sim()}>{(no) => (
+            <button onClick={() => { const u = db.units.find((x) => x.no === no && x.state === "in"); u ? take(u) : flash({ kind: "none", typed: no }, 2200); }}>{no}</button>
           )}</For>
         </div>
         <Show when={!online()}>
-          <div class={s.camOff}>Offline — taking out needs a connection.<br />Units can't be consumed until cooka is reachable.</div>
+          <div class={s.camOff}>Offline — taking out needs a connection.</div>
         </Show>
       </div>
 
-      <div class={s.result} classList={{ [s.ok]: result()?.kind === "taken", [s.bad]: result()?.kind === "useby" }}>
-        <Switch fallback={<div class={s.what}><span class={s.muted}>Scan a label or type its number</span></div>}>
-          <Match when={result()?.kind === "taken" && (result() as any).unit}>{(u) => (<>
-            <div class={s.what}><span class={s.muted}>✓ Taken out · {u().no}</span><b>{u().food}</b><span class={s.muted}>{u().portion}{u().opened ? " · was opened" : ""}</span></div>
-            <Btn kind="secondary" onClick={() => undo(u())} needsNet>Undo</Btn>
-          </>)}</Match>
-          <Match when={result()?.kind === "undone" && (result() as any).unit}>{(u) => (
-            <div class={s.what}><span class={s.muted}>↩ Back in stock · {u().no}</span><b>{u().food}</b></div>
-          )}</Match>
-          <Match when={result()?.kind === "useby" && (result() as any).unit}>{(u) => (<>
-            <div class={s.what}><span>⚠ Past use-by — not taken out</span><b>{u().food} · {u().no}</b></div>
-            <Btn kind="danger" onClick={() => go(`/u/${u().no}`)}>Discard…</Btn>
-          </>)}</Match>
-          <Match when={result()?.kind === "none" && (result() as any)}>{(r) => (
-            <div class={s.what}><b>No unit {r().typed} in stock</b><span class={s.muted}>Already taken out? Check the Freezer.</span></div>
-          )}</Match>
-          <Match when={result()?.kind === "pick" && (result() as any).units}>{(us) => (
-            <div class={s.what}><span class={s.muted}>Two units share these digits — which one?</span>
-              <div class={s.pick} style={{ "grid-template-columns": "1fr 1fr", display: "grid", "margin-top": "8px" }}>
-                <For each={us() as Unit[]}>{(u) => <Btn kind="secondary" onClick={() => take(u)} sub={u.food}>{u.no}</Btn>}</For>
-              </div>
-            </div>
-          )}</Match>
-        </Switch>
+      <div class={s.undoLine}>
+        <Show when={undoable()} fallback={<span class={s.muted}>Scan a label or type its number</span>}>
+          {(u) => (<>
+            <span>✓ {u().food} · {u().no}</span>
+            <button class={s.undoBtn} disabled={!online()} onClick={undo}>↩ Undo</button>
+          </>)}
+        </Show>
       </div>
 
       <div class={s.pad} style={{ opacity: online() ? 1 : 0.4, "pointer-events": online() ? "auto" : "none" }}>
@@ -85,6 +85,62 @@ export default function Scanner(props: { embedded?: boolean; onTaken?: (u: Unit)
           }</For>
         </div>
       </div>
+
+      <Show when={pop()}>
+        <div class={s.pop} classList={{
+          [s.popOk]: pop()!.kind === "taken",
+          [s.popWarn]: pop()!.kind === "bestbefore",
+          [s.popBad]: pop()!.kind === "useby",
+        }} onClick={() => ["taken", "none", "discarded"].includes(pop()!.kind) && setPop(null)}>
+          <Switch>
+            <Match when={pop()!.kind === "taken" && (pop() as any).unit}>{(u) => (<>
+              <svg class={s.check} viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" /><path d="M14 27l8 8 16-17" /></svg>
+              <div class={s.popTitle}>Taken out</div>
+              <div class={s.popFood}>{u().food}</div>
+              <div class={s.popSub}>{u().no} · {u().portion}{u().opened ? " · was opened" : ""}</div>
+            </>)}</Match>
+            <Match when={pop()!.kind === "bestbefore" && (pop() as any).unit}>{(u) => (<>
+              <div class={s.popIcon}>⚠</div>
+              <div class={s.popTitle}>Past best-before</div>
+              <div class={s.popFood}>{u().food} · {u().no}</div>
+              <div class={s.popSub}>best before {fmtDate(u().date)} — usually still fine. Look, smell, then decide.</div>
+              <div class={s.popActions}>
+                <Btn kind="primary" size="primary" needsNet onClick={() => consume(u())}>Use it</Btn>
+                <Btn size="primary" needsNet onClick={() => discard(u())}>Discard</Btn>
+                <Btn kind="ghost" onClick={() => setPop(null)}>Put back</Btn>
+              </div>
+            </>)}</Match>
+            <Match when={pop()!.kind === "useby" && (pop() as any).unit}>{(u) => (<>
+              <div class={s.popIcon}>⛔</div>
+              <div class={s.popTitle}>Past use-by</div>
+              <div class={s.popFood}>{u().food} · {u().no}</div>
+              <div class={s.popSub}>use by {fmtDate(u().date)} — don't eat it. Not taken out.</div>
+              <div class={s.popActions}>
+                <Btn kind="danger" size="primary" needsNet onClick={() => discard(u())}>Discard</Btn>
+                <Btn kind="ghost" onClick={() => setPop(null)}>Put back</Btn>
+              </div>
+            </>)}</Match>
+            <Match when={pop()!.kind === "discarded" && (pop() as any).unit}>{(u) => (<>
+              <div class={s.popIcon}>🗑</div>
+              <div class={s.popTitle}>Discarded</div>
+              <div class={s.popSub}>{u().food} · {u().no}</div>
+            </>)}</Match>
+            <Match when={pop()!.kind === "none" && (pop() as any)}>{(p) => (<>
+              <div class={s.popIcon}>?</div>
+              <div class={s.popTitle}>No {p().typed} in stock</div>
+              <div class={s.popSub}>Already taken out? Check the Freezer.</div>
+            </>)}</Match>
+            <Match when={pop()!.kind === "pick" && (pop() as any).units}>{(us) => (<>
+              <div class={s.popTitle}>Which one?</div>
+              <div class={s.popSub}>Two units share these digits.</div>
+              <div class={s.popActions}>
+                <For each={us() as Unit[]}>{(u) => <Btn size="primary" onClick={() => take(u)} sub={u.food}>{u.no}</Btn>}</For>
+                <Btn kind="ghost" onClick={() => setPop(null)}>Cancel</Btn>
+              </div>
+            </>)}</Match>
+          </Switch>
+        </div>
+      </Show>
     </div>
   );
 }
