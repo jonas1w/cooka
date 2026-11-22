@@ -1,0 +1,29 @@
+.btn {
+  min-height: var(--tap); min-width: var(--tap); padding: 0 calc(var(--pad) * 1.2);
+  border-radius: var(--radius); border: 2px solid var(--line); background: var(--surface);
+  font-size: var(--fs); font-weight: 600; cursor: pointer; touch-action: manipulation;
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+}
+.btn small { font-size: var(--fs-s); font-weight: 500; opacity: .8; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn:active:not(:disabled) { transform: scale(.98); filter: brightness(.95); }
+.big { min-height: var(--tap-primary); font-size: var(--fs-l); }
+.wide { width: 100%; }
+.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+.ghost { background: transparent; border-color: transparent; }
+.secondary {}
+
+.stepper { display: inline-flex; align-items: stretch; border: 2px solid var(--line); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+.stepper button { width: var(--tap); min-height: var(--tap); border: 0; background: transparent; font-size: var(--fs-xl); cursor: pointer; }
+.stepper button:disabled { opacity: .3; }
+.stepper output { min-width: calc(var(--tap) * 1.4); display: grid; place-items: center; font-size: var(--fs-l); font-weight: 700; padding: 0 8px; white-space: nowrap; }
+.stepper output small { font-size: var(--fs-s); font-weight: 500; }
+
+.chips { display: flex; flex-wrap: wrap; gap: calc(var(--gap) * .6); }
+.chip { min-height: var(--tap); padding: 0 var(--pad); border-radius: 999px; border: 2px solid var(--line); background: var(--surface); font-size: var(--fs); cursor: pointer; }
+.chipOn { background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 700; }
+
+.field { display: grid; gap: calc(var(--gap) * .5); }
+.fieldLabel { font-size: var(--fs-s); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; display: flex; justify-content: space-between; gap: 8px; }
+.fieldLabel span { text-transform: none; letter-spacing: 0; font-weight: 500; }

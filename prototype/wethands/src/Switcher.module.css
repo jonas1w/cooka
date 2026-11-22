@@ -1,0 +1,17 @@
+.bar {
+  position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 9999;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center;
+  max-width: calc(100vw - 16px);
+  background: #111; color: #fff; padding: 6px 10px; border-radius: 999px;
+  font: 13px/1.2 ui-monospace, Menlo, monospace; box-shadow: 0 6px 24px rgba(0,0,0,.4);
+  border: 2px dashed #ff3ea5;
+}
+.bar button, .bar select {
+  background: #2a2a2a; color: #fff; border: 0; border-radius: 999px; padding: 6px 10px; cursor: pointer; font: inherit;
+}
+.bar .on { background: #ff3ea5; }
+.label { white-space: nowrap; }
+.sep { width: 1px; height: 18px; background: #444; }
+.taps { white-space: nowrap; color: #ccc; }
+.taps b { color: #ff3ea5; }
+.top { top: 4px; bottom: auto; opacity: .85; }

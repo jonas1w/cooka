@@ -1,0 +1,23 @@
+/* PROTOTYPE — the design tokens under test. One block per variant. */
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #d9d6d0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+button { font: inherit; color: inherit; }
+
+[data-variant="A"] {
+  --tap: 56px; --tap-primary: 64px; --fs: 17px; --fs-s: 14px; --fs-l: 22px; --fs-xl: 28px; --fs-num: 40px;
+  --gap: 12px; --pad: 16px; --radius: 12px;
+  --bg: #f7f6f3; --surface: #fff; --ink: #1d1c1a; --muted: #6b675f; --line: #e2ded6;
+  --accent: #1f6f5c; --accent-ink: #fff; --warn: #b4540b; --danger: #b3261e; --warn-bg: #fff1e0; --danger-bg: #fde8e6;
+}
+[data-variant="B"] {
+  --tap: 72px; --tap-primary: 88px; --fs: 20px; --fs-s: 16px; --fs-l: 26px; --fs-xl: 34px; --fs-num: 52px;
+  --gap: 16px; --pad: 20px; --radius: 18px;
+  --bg: #fbf6ee; --surface: #fff; --ink: #201a12; --muted: #6e6253; --line: #eadfce;
+  --accent: #c8501e; --accent-ink: #fff; --warn: #9a5a00; --danger: #a8231a; --warn-bg: #fff0d6; --danger-bg: #fde4e1;
+}
+[data-variant="C"] {
+  --tap: 64px; --tap-primary: 76px; --fs: 18px; --fs-s: 15px; --fs-l: 24px; --fs-xl: 30px; --fs-num: 46px;
+  --gap: 14px; --pad: 18px; --radius: 14px;
+  --bg: #121417; --surface: #1e2227; --ink: #f2f1ee; --muted: #a3a8ae; --line: #2f353c;
+  --accent: #ffd23f; --accent-ink: #121417; --warn: #ffb057; --danger: #ff7b72; --warn-bg: #3a2a12; --danger-bg: #3d1c1a;
+}
