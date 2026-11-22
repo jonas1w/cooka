@@ -37,3 +37,12 @@
 @container app (min-width: 800px) { .railLabel { font-size: 15px; } }
 .railWarn { background: var(--warn); color: #000; border-radius: var(--radius); text-align: center; font-size: 12px; font-weight: 800; padding: 6px 2px; }
 .railUpdate { flex: none; background: var(--ink); color: var(--bg); font-size: 24px; margin-top: auto; }
+
+/* B/D/E — round 2 */
+.strip { padding: 4px var(--pad); font-size: var(--fs-s); text-align: center; }
+.dock { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 6px; border-top: 2px solid var(--line); background: var(--surface); }
+.dockItem { min-height: var(--tap); border: 0; border-radius: var(--radius); background: transparent; display: grid; place-items: center; align-content: center; gap: 2px; font-size: 13px; font-weight: 700; color: var(--muted); cursor: pointer; }
+.dockOn { background: var(--accent); color: var(--accent-ink); }
+.ctx { display: flex; gap: 6px; padding: 6px; border-top: 2px solid var(--line); background: var(--surface); }
+.ctxHome { flex: 1.4; min-height: var(--tap); border: 0; border-radius: var(--radius); background: var(--ink); color: var(--bg); font-size: var(--fs-l); font-weight: 800; cursor: pointer; }
+.ctxItem { flex: 1; min-height: var(--tap); border: 2px solid var(--line); border-radius: var(--radius); background: var(--bg); display: grid; place-items: center; align-content: center; font-size: var(--fs-s); font-weight: 700; cursor: pointer; }

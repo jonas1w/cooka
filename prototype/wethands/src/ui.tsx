@@ -53,8 +53,8 @@ export function Chips<T extends string>(p: { options: readonly T[]; value: T; on
 }
 
 /** Offline note, shared wording. Shells decide where it sits. */
-export function OfflineText(p: { short?: boolean }) {
-  return <>{p.short ? `Offline · as of ${asOf}` : `Offline — showing what cooka knew at ${asOf}. Shopping list changes are kept and sent later.`}</>;
+export function OfflineText(_p: { short?: boolean }) {
+  return <>Offline · {asOf}</>;
 }
 export const isOffline = () => !online();
 export const hasUpdate = updateReady;

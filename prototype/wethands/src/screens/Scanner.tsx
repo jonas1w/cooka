@@ -7,17 +7,18 @@ import s from "./screens.module.css";
 
 type Result = { kind: "taken"; unit: Unit } | { kind: "useby"; unit: Unit } | { kind: "none"; typed: string } | { kind: "pick"; units: Unit[] } | { kind: "undone"; unit: Unit };
 
-export default function Scanner() {
+export default function Scanner(props: { embedded?: boolean; onTaken?: (u: Unit) => void; onUndo?: (u: Unit) => void }) {
   const go = useGo();
   const [typed, setTyped] = createSignal("");
   const [result, setResult] = createSignal<Result | null>(
-    lastTaken() ? { kind: "taken", unit: db.units.find((u) => u.no === lastTaken())! } : null,
+    !props.embedded && lastTaken() ? { kind: "taken", unit: db.units.find((u) => u.no === lastTaken())! } : null,
   );
 
   const take = (u: Unit) => {
     if (pastUseBy(u)) return setResult({ kind: "useby", unit: u });
     setUnitState(u.no, "consumed"); setLastTaken(u.no);
     setResult({ kind: "taken", unit: { ...u } });
+    props.onTaken?.(u);
   };
   const lookup = (digits: string) => {
     const hits = inStock().filter((u) => u.no.slice(-4) === digits);
@@ -31,15 +32,15 @@ export default function Scanner() {
     setTyped(next);
     if (next.length === 4) { lookup(next); setTimeout(() => setTyped(""), 250); } // auto-submit
   };
-  const undo = (u: Unit) => { setUnitState(u.no, "in"); setLastTaken(null); setResult({ kind: "undone", unit: u }); };
+  const undo = (u: Unit) => { setUnitState(u.no, "in"); setLastTaken(null); setResult({ kind: "undone", unit: u }); props.onUndo?.(u); };
 
   return (
-    <div class={s.scanner}>
+    <div class={s.scanner} classList={{ [s.embedded]: props.embedded }}>
       <div class={s.cam}>
         <div class={s.reticle} />
         <div class={s.simulate}>
           <span style={{ color: "#ff3ea5", "font-size": "12px", width: "100%", "text-align": "center" }}>simulate a QR scan:</span>
-          <For each={["0412", "0399", "0405", "0408"]}>{(no) => (
+          <For each={props.embedded ? ["0409", "0402", "0405"] : ["0412", "0399", "0405", "0408"]}>{(no) => (
             <button onClick={() => { const u = db.units.find((x) => x.no === no)!; u.state === "in" ? take(u) : setResult({ kind: "none", typed: no }); }}>{no}</button>
           )}</For>
         </div>

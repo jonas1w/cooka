@@ -44,7 +44,9 @@ function Root(props: ParentProps) {
       >
         <Switch>
           <Match when={variant() === "A"}><TabsShell>{props.children}</TabsShell></Match>
-          <Match when={variant() === "B"}><LauncherShell>{props.children}</LauncherShell></Match>
+          <Match when={variant() === "B"}><LauncherShell nav="home">{props.children}</LauncherShell></Match>
+          <Match when={variant() === "D"}><LauncherShell nav="dock">{props.children}</LauncherShell></Match>
+          <Match when={variant() === "E"}><LauncherShell nav="context">{props.children}</LauncherShell></Match>
           <Match when={variant() === "C"}><RailShell>{props.children}</RailShell></Match>
         </Switch>
       </div>
@@ -71,7 +73,7 @@ function Home() {
   return (
     <Switch>
       <Match when={v() === "A"}><Freezer /></Match>
-      <Match when={v() === "B"}><Launcher /></Match>
+      <Match when={["B", "D", "E"].includes(v())}><Launcher /></Match>
       <Match when={v() === "C"}><Scanner /></Match>
     </Switch>
   );
@@ -82,7 +84,7 @@ render(
     <Router root={Root}>
       <Route path="/" component={Home} />
       <Route path="/freezer" component={Freezer} />
-      <Route path="/scan" component={Scanner} />
+      <Route path="/scan" component={() => <Scanner />} />
       <Route path="/label" component={Label} />
       <Route path="/u/:no" component={UnitPage} />
       <Route path="/cook/:id" component={Cook} />

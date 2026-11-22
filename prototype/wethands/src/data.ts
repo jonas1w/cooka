@@ -20,6 +20,7 @@ export const [db, setDb] = createStore({
     { no: "0399", food: "Chili con carne", portion: "2 servings", prep: "cooked", frozenOn: "2026-09-02", date: "2026-12-01", meaning: "best-before", kcal: 820, protein: 54, state: "in", opened: true },
     { no: "0402", food: "Chicken stock", portion: "1 l", prep: "cooked", frozenOn: "2026-06-10", date: "2026-11-10", meaning: "best-before", state: "in" },
     { no: "0405", food: "Minced beef", portion: "500 g", prep: "raw", frozenOn: "2026-08-20", date: "2026-11-18", meaning: "use-by", state: "in" },
+    { no: "0409", food: "Minced beef", portion: "500 g", prep: "raw", frozenOn: "2026-10-28", date: "2027-01-28", meaning: "use-by", state: "in" },
     { no: "0407", food: "Lasagne", portion: "1 serving", prep: "cooked", frozenOn: "2026-10-01", date: "2027-01-01", meaning: "best-before", kcal: 640, protein: 38, state: "in" },
     { no: "0408", food: "Lasagne", portion: "1 serving", prep: "cooked", frozenOn: "2026-10-01", date: "2027-01-01", meaning: "best-before", kcal: 640, protein: 38, state: "in" },
     { no: "0411", food: "Blanched spinach", portion: "300 g", prep: "blanched", frozenOn: "2026-10-15", date: "2027-04-15", meaning: "best-before", state: "in" },

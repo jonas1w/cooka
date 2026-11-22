@@ -1,21 +1,67 @@
-// Variant B — no persistent nav. Home is a launcher of huge tiles; every other screen ends in a full-width Home bar.
+// Variants B, D, E — Home is a launcher of huge tiles. They differ only in how you move between screens:
+//   B "home":    every other screen ends in one full-width Home bar.
+//   D "dock":    every other screen ends in a dock — Home + the four main jumps, always the same.
+//   E "context": every other screen ends in Home + up to two shortcuts chosen for that screen.
 import { useLocation } from "@solidjs/router";
-import { Show, type ParentProps } from "solid-js";
+import { For, Match, Show, Switch, type ParentProps } from "solid-js";
 import { db, inStock, lastTaken } from "../data";
 import { hasUpdate, isOffline, OfflineText, reload } from "../ui";
 import { useGo } from "../nav";
 import s from "./shells.module.css";
 
-export default function LauncherShell(p: ParentProps) {
+type Nav = "home" | "dock" | "context";
+type Jump = { path: string; icon: string; label: string };
+const J = {
+  scan: { path: "/scan", icon: "⌖", label: "Take out" },
+  label: { path: "/label", icon: "🏷", label: "Label" },
+  list: { path: "/list", icon: "☑", label: "List" },
+  cook: { path: "/recipes", icon: "📖", label: "Cook" },
+  freezer: { path: "/freezer", icon: "❄", label: "Freezer" },
+} satisfies Record<string, Jump>;
+const DOCK: Jump[] = [J.scan, J.label, J.list, J.cook];
+// E: what you most likely want next from each screen.
+const contextFor = (path: string): Jump[] =>
+  path.startsWith("/scan") ? [J.freezer, J.label] :
+  path.startsWith("/label") ? [J.freezer, J.scan] :
+  path.startsWith("/list") ? [J.cook] :
+  path.startsWith("/recipes") ? [J.list] :
+  path.startsWith("/cook") ? [J.list, J.freezer] :
+  path.startsWith("/u/") ? [J.scan, J.freezer] :
+  path.startsWith("/freezer") ? [J.scan, J.label] : [];
+
+export default function LauncherShell(p: ParentProps<{ nav: Nav }>) {
   const loc = useLocation();
   const go = useGo();
   const home = () => loc.pathname === "/";
+  const on = (j: Jump) => loc.pathname.startsWith(j.path) || (j === J.cook && loc.pathname.startsWith("/cook"));
   return (
     <div class={s.col}>
-      <Show when={isOffline()}><div class={s.strip}><OfflineText /></div></Show>
+      <Show when={isOffline()}><div class={s.strip}>☁︎ <OfflineText /></div></Show>
       <main class={s.main}>{p.children}</main>
       <Show when={!home()}>
-        <button class={s.homeBar} onClick={() => go("/")}>⌂ Home</button>
+        <Switch>
+          <Match when={p.nav === "home"}>
+            <button class={s.homeBar} onClick={() => go("/")}>⌂ Home</button>
+          </Match>
+          <Match when={p.nav === "dock"}>
+            <nav class={s.dock}>
+              <button class={s.dockItem} onClick={() => go("/")}><span class={s.tabIcon}>⌂</span>Home</button>
+              <For each={DOCK}>{(j) => (
+                <button class={s.dockItem} classList={{ [s.dockOn]: on(j) }} onClick={() => go(j.path)}>
+                  <span class={s.tabIcon}>{j.icon}</span>{j.label}
+                </button>
+              )}</For>
+            </nav>
+          </Match>
+          <Match when={p.nav === "context"}>
+            <nav class={s.ctx}>
+              <button class={s.ctxHome} onClick={() => go("/")}>⌂ Home</button>
+              <For each={contextFor(loc.pathname)}>{(j) => (
+                <button class={s.ctxItem} onClick={() => go(j.path)}><span class={s.tabIcon}>{j.icon}</span>{j.label}</button>
+              )}</For>
+            </nav>
+          </Match>
+        </Switch>
       </Show>
     </div>
   );

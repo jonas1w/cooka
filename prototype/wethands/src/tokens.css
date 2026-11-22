@@ -9,7 +9,7 @@ button { font: inherit; color: inherit; }
   --bg: #f7f6f3; --surface: #fff; --ink: #1d1c1a; --muted: #6b675f; --line: #e2ded6;
   --accent: #1f6f5c; --accent-ink: #fff; --warn: #b4540b; --danger: #b3261e; --warn-bg: #fff1e0; --danger-bg: #fde8e6;
 }
-[data-variant="B"] {
+[data-variant="B"], [data-variant="D"], [data-variant="E"] {
   --tap: 72px; --tap-primary: 88px; --fs: 20px; --fs-s: 16px; --fs-l: 26px; --fs-xl: 34px; --fs-num: 52px;
   --gap: 16px; --pad: 20px; --radius: 18px;
   --bg: #fbf6ee; --surface: #fff; --ink: #201a12; --muted: #6e6253; --line: #eadfce;

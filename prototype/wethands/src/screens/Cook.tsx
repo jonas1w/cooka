@@ -1,6 +1,7 @@
 // Cooking mode: one scrolling page; tap anywhere advances; timers start on tap and ring in the foreground.
 import { createSignal, For, onCleanup, Show } from "solid-js";
-import { recipe, setFreezeFrom } from "../data";
+import { recipe, setFreezeFrom, setUnitState, type Unit } from "../data";
+import Scanner from "./Scanner";
 import { Btn, Stepper } from "../ui";
 import { useGo } from "../nav";
 import s from "./screens.module.css";
@@ -17,16 +18,22 @@ export default function Cook() {
   const tick = setInterval(() => setNow(Date.now()), 250);
   onCleanup(() => clearInterval(tick));
   const f = () => servings() / recipe.servings;
+  // Units taken out of the freezer for this cook (scanned from inside cooking mode).
+  const [taken, setTaken] = createSignal<Unit[]>([]);
+  const [scanning, setScanning] = createSignal(false);
+  const fromFreezer = (line: string) => taken().find((u) => line.toLowerCase().includes(u.food.toLowerCase()));
   const last = recipe.steps.length - 1;
   // PROTOTYPE: timers run 60× fast so you can see them ring.
   const start = (min: number, label: string) => setTimers((t) => [...t, { id: Date.now(), label, ends: Date.now() + (min * 60_000) / 60 }]);
   const fmt = (ms: number) => { const sec = Math.max(0, Math.ceil(ms / 1000 * 60)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`; };
 
   return (
+    <div class={s.cookWrap}>
     <div class={s.cook} onClick={() => setStep((i) => Math.min(last, i + 1))}>
       <div class={s.cookHead}>
         <h1 class={s.h1}>{recipe.title}</h1>
         <Stepper value={servings()} max={40} label="servings" onChange={setServings} />
+        <Btn onClick={() => setScanning(true)}>⌖ Take from freezer</Btn>
       </div>
       <Show when={timers().length}>
         <div class={s.timers}>
@@ -42,7 +49,12 @@ export default function Cook() {
       </Show>
       <div>
         <h2 style={{ margin: "0 0 8px", "font-size": "var(--fs-l)" }}>Ingredients</h2>
-        <ul class={s.ingredients}><For each={recipe.ingredients}>{(i) => <li>{scale(i, f())}</li>}</For></ul>
+        <ul class={s.ingredients}><For each={recipe.ingredients}>{(i) => (
+          <li classList={{ [s.gotIt]: !!fromFreezer(i) }}>{scale(i, f())}<Show when={fromFreezer(i)}>{(u) => <small> ✓ {u().no}</small>}</Show></li>
+        )}</For></ul>
+        <Show when={taken().length}>
+          <p class={s.muted} style={{ "font-size": "var(--fs-s)" }}>From the freezer: {taken().map((u) => `${u.food} ${u.no}`).join(", ")}</p>
+        </Show>
       </div>
       <div style={{ display: "grid", gap: "var(--gap)" }}>
         <For each={recipe.steps}>{(st, i) => (
@@ -50,7 +62,7 @@ export default function Cook() {
             onClick={(e) => { if (i() !== step()) { e.stopPropagation(); setStep(i()); } }}>
             <b>{i() + 1}.</b> {st.text}
             <Show when={i() === step()}>
-              <Show when={st.uses.length}><ul><For each={st.uses}>{(u) => <li>{scale(u, f())}</li>}</For></ul></Show>
+              <Show when={st.uses.length}><ul><For each={st.uses}>{(u) => <li classList={{ [s.gotIt]: !!fromFreezer(u) }}>{scale(u, f())}<Show when={fromFreezer(u)}>{(x) => <small> ✓ {x().no}</small>}</Show></li>}</For></ul></Show>
               <Show when={st.timer}>
                 <div><button class={s.timerChip} onClick={(e) => { e.stopPropagation(); start(st.timer!, `${st.timer} min · step ${i() + 1}`); }}>▶ Start {st.timer} min</button></div>
               </Show>
@@ -65,6 +77,13 @@ export default function Cook() {
         </Show>
       </div>
       <div class={s.tapHint}>Tap anywhere for the next step · tap a step to jump · screen stays awake</div>
+    </div>
+    <Show when={scanning()}>
+      <div class={s.sheet}>
+        <div class={s.sheetHead}><b>Take out for {recipe.title}</b><Btn kind="primary" onClick={() => setScanning(false)}>Done</Btn></div>
+        <Scanner embedded onTaken={(u) => setTaken((t) => [...t, u])} onUndo={(u) => setTaken((t) => t.filter((x) => x.no !== u.no))} />
+      </div>
+    </Show>
     </div>
   );
 }

@@ -10,7 +10,7 @@ export default function Switcher(props: { device: string }) {
   const v = useVariant();
   const loc = useLocation();
   const cycle = (d: number) => {
-    const i = VARIANTS.indexOf(v());
+    const i = Math.max(0, VARIANTS.indexOf(v()));
     setSp({ variant: VARIANTS[(i + d + VARIANTS.length) % VARIANTS.length] }, { replace: true });
   };
   const onKey = (e: KeyboardEvent) => {
