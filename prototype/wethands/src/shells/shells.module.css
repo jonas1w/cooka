@@ -52,3 +52,10 @@
 .cookingBar small { font-weight: 600; font-size: var(--fs-s); opacity: .9; }
 .cookingRing { background: var(--danger); animation: ring 1s infinite; }
 @keyframes ring { 50% { opacity: .6; } }
+
+/* F — fixed mode row (round 4) */
+.modes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 6px; border-top: 2px solid var(--line); background: var(--surface); }
+.mode { min-height: var(--tap); border: 2px solid var(--line); border-radius: var(--radius); background: var(--bg); display: grid; place-items: center; align-content: center; gap: 2px; font-size: var(--fs-s); font-weight: 800; color: var(--ink); cursor: pointer; }
+.modeOn { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.strip { display: flex; justify-content: center; align-items: center; gap: var(--gap); }
+.stripBtn { border: 0; background: var(--ink); color: var(--bg); border-radius: 999px; padding: 4px 12px; font-weight: 800; font-size: var(--fs-s); cursor: pointer; }

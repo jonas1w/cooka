@@ -9,7 +9,7 @@ import { hasUpdate, isOffline, OfflineText, reload } from "../ui";
 import { useGo } from "../nav";
 import s from "./shells.module.css";
 
-type Nav = "home" | "dock" | "context";
+type Nav = "home" | "dock" | "context" | "modes";
 type Jump = { path: string; icon: string; label: string };
 const J = {
   scan: { path: "/scan", icon: "⌖", label: "Take out" },
@@ -19,6 +19,8 @@ const J = {
   freezer: { path: "/freezer", icon: "❄", label: "Freezer" },
 } satisfies Record<string, Jump>;
 const DOCK: Jump[] = [J.scan, J.label, J.list, J.cook];
+// F: four modes, always the same, in this order. Label lives in Freezer (and in Cook → Freeze portions).
+const MODES: Jump[] = [{ ...J.cook, path: "/" }, J.scan, J.freezer, J.list];
 // E: what you most likely want next from each screen.
 const contextFor = (path: string): Jump[] =>
   path.startsWith("/scan") ? [J.freezer, J.label] :
@@ -36,10 +38,24 @@ export default function LauncherShell(p: ParentProps<{ nav: Nav }>) {
   const on = (j: Jump) => loc.pathname.startsWith(j.path) || (j === J.cook && loc.pathname.startsWith("/cook"));
   return (
     <div class={s.col}>
-      <Show when={isOffline()}><div class={s.strip}>☁︎ <OfflineText /></div></Show>
+      <Show when={isOffline() || (p.nav === "modes" && hasUpdate())}>
+        <div class={s.strip}>
+          <Show when={isOffline()}>☁︎ <OfflineText /></Show>
+          <Show when={p.nav === "modes" && hasUpdate()}><button class={s.stripBtn} onClick={reload}>↻ Update ready</button></Show>
+        </div>
+      </Show>
       <main class={s.main}>{p.children}</main>
       <Show when={cooking() && !loc.pathname.startsWith("/cook")}><CookingBar /></Show>
-      <Show when={!home()}>
+      <Show when={p.nav === "modes"}>
+        <nav class={s.modes}>
+          <For each={MODES}>{(j) => (
+            <button class={s.mode} classList={{ [s.modeOn]: modeOn(j, loc.pathname) }} onClick={() => go(j.path === "/" && cooking() ? `/cook/${cooking()}` : j.path)}>
+              <span class={s.tabIcon}>{j.icon}</span>{j.label}
+            </button>
+          )}</For>
+        </nav>
+      </Show>
+      <Show when={!home() && p.nav !== "modes"}>
         <Switch>
           <Match when={p.nav === "home"}>
             <button class={s.homeBar} onClick={() => go("/")}>⌂ Home</button>
@@ -67,6 +83,11 @@ export default function LauncherShell(p: ParentProps<{ nav: Nav }>) {
     </div>
   );
 }
+
+const modeOn = (j: Jump, path: string) =>
+  j.path === "/" ? path === "/" || path.startsWith("/recipes") || path.startsWith("/cook") :
+  j.path === "/freezer" ? path.startsWith("/freezer") || path.startsWith("/u/") || path.startsWith("/label") :
+  path.startsWith(j.path);
 
 /** Round 3: while a cook is running, every other screen offers the way back — with the next timer. */
 function CookingBar() {

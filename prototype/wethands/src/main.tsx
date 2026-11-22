@@ -47,6 +47,7 @@ function Root(props: ParentProps) {
           <Match when={variant() === "B"}><LauncherShell nav="home">{props.children}</LauncherShell></Match>
           <Match when={variant() === "D"}><LauncherShell nav="dock">{props.children}</LauncherShell></Match>
           <Match when={variant() === "E"}><LauncherShell nav="context">{props.children}</LauncherShell></Match>
+          <Match when={variant() === "F"}><LauncherShell nav="modes">{props.children}</LauncherShell></Match>
           <Match when={variant() === "C"}><RailShell>{props.children}</RailShell></Match>
         </Switch>
       </div>
@@ -75,6 +76,7 @@ function Home() {
       <Match when={v() === "A"}><Freezer /></Match>
       <Match when={["B", "D", "E"].includes(v())}><Launcher /></Match>
       <Match when={v() === "C"}><Scanner /></Match>
+      <Match when={v() === "F"}><Recipes /></Match>
     </Switch>
   );
 }

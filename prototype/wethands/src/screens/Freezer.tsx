@@ -2,6 +2,7 @@
 import { createSignal, For, Show } from "solid-js";
 import { fmtDate, inStock, pastBestBefore, pastUseBy, type Unit } from "../data";
 import { useGo } from "../nav";
+import { Btn } from "../ui";
 import s from "./screens.module.css";
 
 export default function Freezer() {
@@ -14,7 +15,10 @@ export default function Freezer() {
   };
   return (
     <div class={s.screen}>
-      <h1 class={s.h1}>Freezer <span class={s.muted} style={{ "font-size": "var(--fs)" }}>· {inStock().length} units</span></h1>
+      <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", gap: "var(--gap)" }}>
+        <h1 class={s.h1}>Freezer <span class={s.muted} style={{ "font-size": "var(--fs)" }}>· {inStock().length}</span></h1>
+        <Btn kind="primary" onClick={() => go("/label")}>🏷 Label</Btn>
+      </div>
       <div class={s.grid}>
         <For each={groups()}>{([food, units]) => (
           <div class={s.group}>

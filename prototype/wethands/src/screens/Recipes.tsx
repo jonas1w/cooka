@@ -15,7 +15,7 @@ export default function Recipes() {
           </button>
         )}</For>
       </div>
-      <p class={s.muted}>PROTOTYPE: every recipe opens Chili con carne.</p>
+      <p class={s.muted}>PROTOTYPE: every recipe opens Chili con carne. Recipe import lives here too (not prototyped).</p>
     </div>
   );
 }
