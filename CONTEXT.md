@@ -118,8 +118,16 @@ cooka's own camera-and-keypad screen for taking units out. Unlike the unit page,
 _Avoid_: Take-out mode, consume mode
 
 **Base URL**:
-The HTTPS address printed into every freezer label's QR code and the only address cooka is used at. Labels keep the base URL they were printed with; the instance remembers every base URL it has printed with and recognises labels from all of them.
+The HTTPS address printed into every freezer label's QR code — the address labels point at. cooka may also be used under other HTTPS host names; labels never print them. Labels keep the base URL they were printed with; the instance remembers every base URL it has printed with and recognises labels from all of them.
 _Avoid_: Short host, domain
+
+**Proxy mode**:
+How an instance serves HTTPS by default: the self-hoster's reverse proxy (Caddy, Traefik, Nginx Proxy Manager, Tailscale serve) terminates TLS and cooka only answers requests the proxy marks as HTTPS. Active whenever no certificate is attached.
+_Avoid_: HTTP mode, insecure mode
+
+**Attached-cert mode**:
+How an instance serves HTTPS itself, from a certificate and key the self-hoster places in `/data/tls/`. Active whenever those files are present; cooka never creates or renews certificates.
+_Avoid_: Self-signed mode, built-in TLS, ACME
 
 **Label preset**:
 A hand-designed label layout for one label size (60×40 mm, 57×32 mm, 2"×2"), deciding which label fields fit. One per instance; there are no free-form sizes.
