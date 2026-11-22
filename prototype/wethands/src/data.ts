@@ -95,3 +95,18 @@ export const [freezeFrom, setFreezeFrom] = createSignal<null | { food: string; s
 
 // Prototype instrumentation: taps since last visit to Home.
 export const [taps, setTaps] = createSignal(0);
+
+// Round 3 — a cooking session survives leaving the cooking page (step, servings, timers, units taken out).
+export const [cooking, setCooking] = createSignal<string | null>(null);
+export const [cookStep, setCookStep] = createSignal(0);
+export const [cookServings, setCookServings] = createSignal(6);
+export const [cookTaken, setCookTaken] = createSignal<Unit[]>([]);
+export const [cookTimers, setCookTimers] = createSignal<{ id: number; label: string; ends: number }[]>([]);
+export const [now, setNow] = createSignal(Date.now());
+setInterval(() => setNow(Date.now()), 250);
+// PROTOTYPE: timers run 60× fast so you can see them ring.
+export const fmtLeft = (ms: number) => { const sec = Math.max(0, Math.ceil((ms / 1000) * 60)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`; };
+export function endCooking() { setCooking(null); setCookStep(0); setCookTaken([]); setCookTimers([]); }
+export function addToList(text: string, from?: string) {
+  setDb("list", (l) => [{ id: crypto.randomUUID(), text, done: false, from, queued: !online() }, ...l]);
+}

@@ -46,3 +46,9 @@
 .ctx { display: flex; gap: 6px; padding: 6px; border-top: 2px solid var(--line); background: var(--surface); }
 .ctxHome { flex: 1.4; min-height: var(--tap); border: 0; border-radius: var(--radius); background: var(--ink); color: var(--bg); font-size: var(--fs-l); font-weight: 800; cursor: pointer; }
 .ctxItem { flex: 1; min-height: var(--tap); border: 2px solid var(--line); border-radius: var(--radius); background: var(--bg); display: grid; place-items: center; align-content: center; font-size: var(--fs-s); font-weight: 700; cursor: pointer; }
+
+/* Round 3 — way back into a running cook */
+.cookingBar { min-height: var(--tap); margin: 0 6px 6px; border: 0; border-radius: var(--radius); background: var(--accent); color: var(--accent-ink); display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 var(--pad); font-size: var(--fs); font-weight: 800; cursor: pointer; }
+.cookingBar small { font-weight: 600; font-size: var(--fs-s); opacity: .9; }
+.cookingRing { background: var(--danger); animation: ring 1s infinite; }
+@keyframes ring { 50% { opacity: .6; } }

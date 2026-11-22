@@ -1,9 +1,14 @@
 // Cooking mode: one scrolling page; tap anywhere advances; timers start on tap and ring in the foreground.
-import { createSignal, For, onCleanup, Show } from "solid-js";
-import { recipe, setFreezeFrom, setUnitState, type Unit } from "../data";
-import Scanner from "./Scanner";
+// Round 2: scan units out of the freezer without leaving. Round 3: add to the shopping list without leaving;
+// the session (step, servings, timers, units taken) survives navigating away — see CookingBar.
+import { createSignal, For, onMount, Show } from "solid-js";
+import {
+  addToList, cookServings, cookStep, cookTaken, cookTimers, db, endCooking, fmtLeft, now, recipe,
+  setCooking, setCookServings, setCookStep, setCookTaken, setCookTimers, setFreezeFrom,
+} from "../data";
 import { Btn, Stepper } from "../ui";
 import { useGo } from "../nav";
+import Scanner from "./Scanner";
 import s from "./screens.module.css";
 
 const scale = (line: string, f: number) =>
@@ -11,37 +16,35 @@ const scale = (line: string, f: number) =>
 
 export default function Cook() {
   const go = useGo();
-  const [step, setStep] = createSignal(0);
-  const [servings, setServings] = createSignal(recipe.servings);
-  const [timers, setTimers] = createSignal<{ id: number; label: string; ends: number }[]>([]);
-  const [now, setNow] = createSignal(Date.now());
-  const tick = setInterval(() => setNow(Date.now()), 250);
-  onCleanup(() => clearInterval(tick));
+  onMount(() => setCooking(recipe.id));
+  const [sheet, setSheet] = createSignal<null | "scan" | "list">(null);
+  const [text, setText] = createSignal("");
+  const step = cookStep, servings = cookServings, timers = cookTimers, taken = cookTaken;
   const f = () => servings() / recipe.servings;
-  // Units taken out of the freezer for this cook (scanned from inside cooking mode).
-  const [taken, setTaken] = createSignal<Unit[]>([]);
-  const [scanning, setScanning] = createSignal(false);
-  const fromFreezer = (line: string) => taken().find((u) => line.toLowerCase().includes(u.food.toLowerCase()));
   const last = recipe.steps.length - 1;
-  // PROTOTYPE: timers run 60× fast so you can see them ring.
-  const start = (min: number, label: string) => setTimers((t) => [...t, { id: Date.now(), label, ends: Date.now() + (min * 60_000) / 60 }]);
-  const fmt = (ms: number) => { const sec = Math.max(0, Math.ceil(ms / 1000 * 60)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`; };
+  const fromFreezer = (line: string) => taken().find((u) => line.toLowerCase().includes(u.food.toLowerCase()));
+  const onList = (line: string) => db.list.some((e) => !e.done && e.text.toLowerCase() === line.toLowerCase());
+  const start = (min: number, label: string) => setCookTimers((t) => [...t, { id: Date.now(), label, ends: Date.now() + (min * 60_000) / 60 }]);
+  const quickAdd = (t: string) => { if (t.trim()) addToList(t.trim(), recipe.title); setText(""); };
 
   return (
     <div class={s.cookWrap}>
-    <div class={s.cook} onClick={() => setStep((i) => Math.min(last, i + 1))}>
+    <div class={s.cook} onClick={() => setCookStep((i) => Math.min(last, i + 1))}>
       <div class={s.cookHead}>
         <h1 class={s.h1}>{recipe.title}</h1>
-        <Stepper value={servings()} max={40} label="servings" onChange={setServings} />
-        <Btn onClick={() => setScanning(true)}>⌖ Take from freezer</Btn>
+        <Stepper value={servings()} max={40} label="servings" onChange={setCookServings} />
+        <div class={s.row2} style={{ width: "100%" }}>
+          <Btn onClick={() => setSheet("scan")}>⌖ Take out</Btn>
+          <Btn onClick={() => setSheet("list")}>＋ Shopping list</Btn>
+        </div>
       </div>
       <Show when={timers().length}>
         <div class={s.timers}>
           <For each={timers()}>{(t) => {
             const left = () => t.ends - now();
             return (
-              <button class={s.timer} classList={{ [s.ring]: left() <= 0 }} onClick={(e) => { e.stopPropagation(); setTimers((ts) => ts.filter((x) => x.id !== t.id)); }}>
-                ⏱ {left() > 0 ? fmt(left()) : "Done!"} <small style={{ "font-weight": 500 }}>{t.label} ✕</small>
+              <button class={s.timer} classList={{ [s.ring]: left() <= 0 }} onClick={(e) => { e.stopPropagation(); setCookTimers((ts) => ts.filter((x) => x.id !== t.id)); }}>
+                ⏱ {left() > 0 ? fmtLeft(left()) : "Done!"} <small style={{ "font-weight": 500 }}>{t.label} ✕</small>
               </button>
             );
           }}</For>
@@ -53,13 +56,13 @@ export default function Cook() {
           <li classList={{ [s.gotIt]: !!fromFreezer(i) }}>{scale(i, f())}<Show when={fromFreezer(i)}>{(u) => <small> ✓ {u().no}</small>}</Show></li>
         )}</For></ul>
         <Show when={taken().length}>
-          <p class={s.muted} style={{ "font-size": "var(--fs-s)" }}>From the freezer: {taken().map((u) => `${u.food} ${u.no}`).join(", ")}</p>
+          <p class={s.muted} style={{ "font-size": "var(--fs-s)" }}>Taken out: {taken().map((u) => `${u.food} ${u.no}`).join(", ")}</p>
         </Show>
       </div>
       <div style={{ display: "grid", gap: "var(--gap)" }}>
         <For each={recipe.steps}>{(st, i) => (
           <div class={s.step} classList={{ [s.current]: i() === step(), [s.past]: i() < step() }}
-            onClick={(e) => { if (i() !== step()) { e.stopPropagation(); setStep(i()); } }}>
+            onClick={(e) => { if (i() !== step()) { e.stopPropagation(); setCookStep(i()); } }}>
             <b>{i() + 1}.</b> {st.text}
             <Show when={i() === step()}>
               <Show when={st.uses.length}><ul><For each={st.uses}>{(u) => <li classList={{ [s.gotIt]: !!fromFreezer(u) }}>{scale(u, f())}<Show when={fromFreezer(u)}>{(x) => <small> ✓ {x().no}</small>}</Show></li>}</For></ul></Show>
@@ -71,17 +74,39 @@ export default function Cook() {
         )}</For>
         <Show when={step() === last}>
           <Btn kind="primary" size="primary" wide needsNet
-            onClick={() => { setFreezeFrom({ food: recipe.title, servings: servings(), kcal: recipe.kcalPerServing, protein: recipe.proteinPerServing }); go("/label"); }}>
+            onClick={() => { setFreezeFrom({ food: recipe.title, servings: servings(), kcal: recipe.kcalPerServing, protein: recipe.proteinPerServing }); endCooking(); go("/label"); }}>
             ❄ Freeze portions
           </Btn>
+          <Btn wide onClick={() => { endCooking(); go("/", true); }}>Finished — nothing to freeze</Btn>
         </Show>
       </div>
       <div class={s.tapHint}>Tap anywhere for the next step · tap a step to jump · screen stays awake</div>
     </div>
-    <Show when={scanning()}>
+
+    <Show when={sheet() === "scan"}>
       <div class={s.sheet}>
-        <div class={s.sheetHead}><b>Take out for {recipe.title}</b><Btn kind="primary" onClick={() => setScanning(false)}>Done</Btn></div>
-        <Scanner embedded onTaken={(u) => setTaken((t) => [...t, u])} onUndo={(u) => setTaken((t) => t.filter((x) => x.no !== u.no))} />
+        <div class={s.sheetHead}><b>Take out for {recipe.title}</b><Btn kind="primary" onClick={() => setSheet(null)}>Back to step {step() + 1}</Btn></div>
+        <Scanner embedded onTaken={(u) => setCookTaken((t) => [...t, u])} onUndo={(u) => setCookTaken((t) => t.filter((x) => x.no !== u.no))} />
+      </div>
+    </Show>
+    <Show when={sheet() === "list"}>
+      <div class={s.sheet}>
+        <div class={s.sheetHead}><b>Running low?</b><Btn kind="primary" onClick={() => setSheet(null)}>Back to step {step() + 1}</Btn></div>
+        <div class={s.screen}>
+          <form class={s.addRow} onSubmit={(e) => { e.preventDefault(); quickAdd(text()); }}>
+            <input class={s.input} value={text()} onInput={(e) => setText(e.currentTarget.value)} placeholder="Add to shopping list…" />
+            <Btn kind="primary" onClick={() => quickAdd(text())}>Add</Btn>
+          </form>
+          <div class={s.muted} style={{ "font-size": "var(--fs-s)" }}>Tap to add — from this recipe</div>
+          <div class={s.quick}>
+            <For each={recipe.ingredients.map((i) => i.replace(/^[\d.,]+\s*(g|kg|ml|l|tbsp|tsp|cloves?)?\s*/i, ""))}>{(name) => (
+              <button classList={{ [s.quickOn]: onList(name) }} disabled={onList(name)} onClick={() => quickAdd(name)}>
+                {onList(name) ? "✓ " : "＋ "}{name}
+              </button>
+            )}</For>
+          </div>
+          <div class={s.muted} style={{ "font-size": "var(--fs-s)" }}>{db.list.filter((e) => !e.done).length} on the list</div>
+        </div>
       </div>
     </Show>
     </div>

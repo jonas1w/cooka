@@ -93,3 +93,8 @@
 .sheet .scanner { flex: 1; min-height: 0; }
 .embedded { grid-template-rows: minmax(90px, .6fr) auto auto; }
 @container app (min-width: 800px) { .sheet { inset: 0 0 0 45%; border-top: 0; border-left: 3px solid var(--accent); border-radius: 0; } .embedded { grid-template-columns: 1fr; grid-template-rows: minmax(120px, .7fr) auto auto; } .embedded .cam { grid-row: auto; } }
+
+/* Round 3 — quick add while cooking */
+.quick { display: flex; flex-wrap: wrap; gap: 8px; }
+.quick button { min-height: var(--tap); padding: 0 var(--pad); border-radius: 999px; border: 2px solid var(--line); background: var(--surface); font-size: var(--fs); cursor: pointer; }
+.quickOn { background: var(--accent) !important; color: var(--accent-ink); border-color: var(--accent) !important; opacity: .7; }

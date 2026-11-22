@@ -4,7 +4,7 @@
 //   E "context": every other screen ends in Home + up to two shortcuts chosen for that screen.
 import { useLocation } from "@solidjs/router";
 import { For, Match, Show, Switch, type ParentProps } from "solid-js";
-import { db, inStock, lastTaken } from "../data";
+import { cookStep, cookTimers, cooking, db, fmtLeft, inStock, lastTaken, now, recipe } from "../data";
 import { hasUpdate, isOffline, OfflineText, reload } from "../ui";
 import { useGo } from "../nav";
 import s from "./shells.module.css";
@@ -38,6 +38,7 @@ export default function LauncherShell(p: ParentProps<{ nav: Nav }>) {
     <div class={s.col}>
       <Show when={isOffline()}><div class={s.strip}>☁︎ <OfflineText /></div></Show>
       <main class={s.main}>{p.children}</main>
+      <Show when={cooking() && !loc.pathname.startsWith("/cook")}><CookingBar /></Show>
       <Show when={!home()}>
         <Switch>
           <Match when={p.nav === "home"}>
@@ -64,6 +65,18 @@ export default function LauncherShell(p: ParentProps<{ nav: Nav }>) {
         </Switch>
       </Show>
     </div>
+  );
+}
+
+/** Round 3: while a cook is running, every other screen offers the way back — with the next timer. */
+function CookingBar() {
+  const go = useGo();
+  const next = () => cookTimers().map((t) => t.ends - now()).sort((a, b) => a - b)[0];
+  return (
+    <button class={s.cookingBar} classList={{ [s.cookingRing]: next() !== undefined && next()! <= 0 }} onClick={() => go(`/cook/${cooking()}`)}>
+      <span>🍲 Back to cooking</span>
+      <small>{recipe.title} · step {cookStep() + 1}/{recipe.steps.length}{next() !== undefined ? ` · ⏱ ${next()! > 0 ? fmtLeft(next()!) : "done!"}` : ""}</small>
+    </button>
   );
 }
 
