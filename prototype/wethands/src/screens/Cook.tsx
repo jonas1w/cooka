@@ -1,7 +1,7 @@
 // Cooking mode: one scrolling page; tap anywhere advances; timers start on tap and ring in the foreground.
 // Round 2: scan units out of the freezer without leaving. Round 3: add to the shopping list without leaving;
 // the session (step, servings, timers, units taken) survives navigating away — see CookingBar.
-import { createSignal, For, onMount, Show } from "solid-js";
+import { createEffect, createSignal, For, on, onMount, Show } from "solid-js";
 import {
   addToList, cookServings, cookStep, cookTaken, cookTimers, db, endCooking, fmtLeft, now, recipe,
   setCooking, setCookServings, setCookStep, setCookTaken, setCookTimers, setFreezeFrom,
@@ -25,6 +25,11 @@ export default function Cook() {
   const fromFreezer = (line: string) => taken().find((u) => line.toLowerCase().includes(u.food.toLowerCase()));
   const onList = (line: string) => db.list.some((e) => !e.done && e.text.toLowerCase() === line.toLowerCase());
   const start = (min: number, label: string) => setCookTimers((t) => [...t, { id: Date.now(), label, ends: Date.now() + (min * 60_000) / 60 }]);
+  // Round 7: the current step always snaps to the top of the screen (below any running timers).
+  const stepEls: HTMLDivElement[] = [];
+  createEffect(on(cookStep, (i, prev) => {
+    requestAnimationFrame(() => stepEls[i]?.scrollIntoView({ block: "start", behavior: prev === undefined ? "auto" : "smooth" }));
+  }));
   const quickAdd = (t: string) => { if (t.trim()) addToList(t.trim(), recipe.title); setText(""); };
 
   return (
@@ -62,7 +67,7 @@ export default function Cook() {
       </div>
       <div style={{ display: "grid", gap: "var(--gap)" }}>
         <For each={recipe.steps}>{(st, i) => (
-          <div class={s.step} classList={{ [s.current]: i() === step(), [s.past]: i() < step() }}
+          <div ref={(el) => (stepEls[i()] = el)} class={s.step} classList={{ [s.current]: i() === step(), [s.past]: i() < step() }}
             onClick={(e) => { if (i() !== step()) { e.stopPropagation(); setCookStep(i()); } }}>
             <b>{i() + 1}.</b> {st.text}
             <Show when={i() === step()}>
