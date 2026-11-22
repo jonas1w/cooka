@@ -48,8 +48,16 @@ _Avoid_: AI import, smart import
 A dismissable note on a freshly imported Recipe pointing at what to check — nutrition not imported, structured by AI, no ingredients found. Imports save immediately; hints replace a review step.
 
 **Cooking mode**:
-The view for cooking a Recipe: the whole recipe on one page, the current step highlighted with its ingredients beneath it, timers and the screen kept awake. Ends in "Freeze portions", which labels the cooked dish.
+The view for cooking a Recipe: the whole recipe on one page, the current step highlighted with its ingredients beneath it and snapped to the top of the screen, timers and the screen kept awake. Units can be taken out and shopping list entries added from inside it without leaving the recipe. Ends in "Freeze portions", which labels the cooked dish, or "Finished".
 _Avoid_: Cook view, step mode
+
+**Cooking session**:
+The one Recipe currently being cooked on a device: its step, servings, running timers and the units taken out for it. It survives leaving cooking mode — every other screen offers "Back to cooking" — and ends with "Freeze portions" or "Finished". One at a time; opening another Recipe asks to switch. Nothing about it is stored once it ends: taking a unit out while cooking is an ordinary consume.
+_Avoid_: Cook log, cooking history
+
+**Mode**:
+One of the four fixed places at the bottom of every screen — Cook (Recipes and cooking mode; where cooka opens), Take out (the scanner), Freezer (stock, unit pages and labelling) and Shopping list. The mode row never changes and there is no home screen.
+_Avoid_: Tab, page, home
 
 **Default shelf life**:
 The freezer shelf life a newly created Food starts with, set per instance. After that, each Food remembers its own.
@@ -74,7 +82,7 @@ _Avoid_: Un-delete, revert
 Whether a stock unit's date is a best-before (quality hint, food usually still fine after) or a use-by (must not be eaten after). Set per instance as a default; a Food may override it; each stock unit keeps the meaning it was labelled with.
 
 **Past best-before**:
-A stock unit whose best-before date has passed. Use it first and check it — not a reason to discard.
+A stock unit whose best-before date has passed. Use it first and check it — not a reason to discard. Scanning one asks "Use it / Discard / Put back" instead of consuming straight away.
 _Avoid_: Expired, spoiled, overdue
 
 **Past use-by**:
@@ -114,8 +122,8 @@ The page a freezer label's QR code opens in any camera app. Shows the stock unit
 _Avoid_: Consume page, label page
 
 **Scanner**:
-cooka's own camera-and-keypad screen for taking units out. Unlike the unit page, a scan or a typed label number here consumes immediately (with Undo), except for units past use-by.
-_Avoid_: Take-out mode, consume mode
+cooka's own camera-and-keypad screen for taking units out — the Take out mode, and also opened inside cooking mode. Unlike the unit page, a scan or a typed label number here consumes immediately, confirmed by a full-screen "Taken out" that closes by itself and leaves an Undo until the next scan — except for units past best-before (asks first) and past use-by (never consumed, only discarded or put back).
+_Avoid_: Consume mode
 
 **Base URL**:
 The HTTPS address printed into every freezer label's QR code — the address labels point at. cooka may also be used under other HTTPS host names; labels never print them. Labels keep the base URL they were printed with; the instance remembers every base URL it has printed with and recognises labels from all of them.
