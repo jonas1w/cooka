@@ -75,7 +75,7 @@ A stock unit that was partly used and put back. Still in stock; finish it before
 _Avoid_: Partial, half
 
 **Restore**:
-Putting a consumed or discarded stock unit back in stock, e.g. after a wrong scan. Possible at any time; recorded in the stock history. "Undo" after a scan is a restore.
+Putting a consumed or discarded stock unit back in stock, e.g. after a wrong scan. Possible at any time; recorded in the stock history. "Undo" after a scan is a restore. Not the same as restoring a backup.
 _Avoid_: Un-delete, revert
 
 **Date meaning**:
@@ -176,3 +176,11 @@ _Avoid_: Config, preference
 **Settings lock**:
 An environment variable that fixes a setting from the server side; the locked setting wins over the stored value and is shown read-only.
 _Avoid_: Override, admin setting
+
+**Backup**:
+A complete, consistent copy of an instance — its data and recipe images — that it can be restored from. Made nightly and before every upgrade, or downloaded on demand. Restoring a backup replaces everything, but label numbers and base URLs never go backwards. Always say "restore a backup", never just "restore", which is a stock unit's.
+_Avoid_: Dump, snapshot (as the user-facing term)
+
+**Export**:
+A read-only copy of part of the data for other tools or people — the stock history, the current stock, the recipes. Never imported back as such.
+_Avoid_: Backup (an export cannot restore an instance)

@@ -8,7 +8,7 @@ We rejected env-var-only configuration (a household member cannot swap the label
 
 ## Consequences
 
-- The API key is write-only through UI and API (shown as `••••abcd`), stored in plain text in SQLite under `/data` (file mode 0600), present in database snapshots but never in user-facing exports, never logged, and masked in Test errors. A key set by `COOKA_AI_API_KEY` is never written to the database.
+- The API key is write-only through UI and API (shown as `••••abcd`), stored in plain text in SQLite under `/data` (file mode 0600), present in the on-disk snapshots in `/data/backups/` but never in downloaded backups or user-facing exports (amended by ADR 0013), never logged, and masked in Test errors. A key set by `COOKA_AI_API_KEY` is never written to the database.
 - The documented `compose.yaml` uses bridge networking; host networking is the documented option that enables mDNS printer discovery. In bridge mode, discovery sweeps the /24 of the device doing the setup (its LAN address from `X-Forwarded-For` in proxy mode, the connecting address in attached-cert mode); manual IP/host entry is always offered (needed over Tailscale or segmented networks). There is no subnet setting.
 - Printer setup: candidates show model and serial; binding prints a test label, then offset nudge and darkness.
 - The next label number can only be raised, never set at or below the highest number ever issued; the highest number is shown beside it.
