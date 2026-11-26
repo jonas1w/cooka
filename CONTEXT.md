@@ -16,7 +16,7 @@ _Avoid_: Delete, throw away
 Why a unit was discarded. Per instance it is required, optional, or disabled (not asked at all).
 
 **Stock history**:
-The append-only record of every unit's lifecycle events (labelled, consumed, discarded, undone). Never edited, never purged; exportable.
+The append-only record of what happened to each stock unit: labelled, consumed, discarded, restored, opened, reprinted, edited (a merge is an edit of the unit's Food). Each event keeps the label number and Food name as they were at that moment. Never edited, never purged; exportable. "Undo" is what people tap; "restored" is what is recorded.
 _Avoid_: Audit log, HACCP log
 
 **Instance language**:
@@ -27,7 +27,7 @@ How dates (one pattern for labels and screens, e.g. `DD.MM.YY` or `ddd DD MMM`),
 _Avoid_: Locale, region
 
 **Food**:
-A named thing that gets frozen repeatedly — a cooked dish or a raw good — carrying the defaults used when labelling it (state, portion, shelf life, macros). Never created by hand: labelling a new name creates it, later labels reuse it.
+A named thing that gets frozen repeatedly — a cooked dish or a raw good — carrying the defaults used when labelling it (preparation, portion, shelf life, macros). Never created by hand: labelling a new name creates it, later labels reuse it.
 _Avoid_: Item, template, Vorlage, product
 
 **Recipe**:
