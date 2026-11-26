@@ -20,7 +20,11 @@ The append-only record of every unit's lifecycle events (labelled, consumed, dis
 _Avoid_: Audit log, HACCP log
 
 **Instance language**:
-The single language an instance uses for its UI and labels. Chosen per instance, not per person.
+The single language an instance uses for its UI and labels. Chosen per instance, not per person; picked from the first browser's language until someone changes it. Imported recipes keep their own language.
+
+**Display format**:
+How dates (one pattern for labels and screens, e.g. `DD.MM.YY` or `ddd DD MMM`), numbers (decimal and thousands separators) and macro units (kcal/kJ, g/oz) are shown. Separate settings whose defaults come from the instance language; they never change stored values, and exports ignore them.
+_Avoid_: Locale, region
 
 **Food**:
 A named thing that gets frozen repeatedly — a cooked dish or a raw good — carrying the defaults used when labelling it (state, portion, shelf life, macros). Never created by hand: labelling a new name creates it, later labels reuse it.
