@@ -41,7 +41,7 @@ _Avoid_: Scrape, sync
 The address a Recipe was imported from, kept on the Recipe. Importing a source URL that is already in cooka offers to open the existing Recipe or import a copy.
 
 **AI fallback**:
-An optional, per-instance language model (OpenAI, Anthropic or Gemini) that structures an import only when the page has no structured recipe data. It fills a fixed format, leaves anything the source does not state empty — never estimates macros — and keeps the source's wording.
+An optional, per-instance language model the household brings itself (OpenAI, Anthropic, Gemini, or any OpenAI-compatible endpoint; model chosen freely) that structures an import only when the page has no structured recipe data. It fills a fixed format, leaves anything the source does not state empty — never estimates macros — and keeps the source's wording.
 _Avoid_: AI import, smart import
 
 **Import hint**:
@@ -168,3 +168,11 @@ _Avoid_: Auto-reorder, low-stock alert
 **Event stream**:
 The one server-sent stream every open screen listens to. It only says *which* topic changed (e.g. the shopping list); the screen then reloads that data itself. Changes from other phones arrive through it within seconds.
 _Avoid_: Push, sync, websocket
+
+**Setting**:
+A per-instance choice stored in cooka and changeable by anyone who can open it (printer, label preset, language, food defaults, AI provider, next label number). Reached from the gear in the top status line.
+_Avoid_: Config, preference
+
+**Settings lock**:
+An environment variable that fixes a setting from the server side; the locked setting wins over the stored value and is shown read-only.
+_Avoid_: Override, admin setting
