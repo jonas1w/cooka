@@ -188,3 +188,7 @@ _Avoid_: Dump, snapshot (as the user-facing term)
 **Export**:
 A read-only copy of part of the data for other tools or people — the stock history, the current stock, the recipes. Never imported back as such.
 _Avoid_: Backup (an export cannot restore an instance)
+
+**Stable surface**:
+What cooka promises not to break between minor releases: the endpoint that adds a shopping-list entry, and the export formats. Export columns and fields may be added, never renamed or removed. Everything else the app speaks (the rest of `/api`, the event stream) is internal and may change in any release.
+_Avoid_: Public API (cooka exposes nothing to the internet), integration API
